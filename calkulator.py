@@ -1,6 +1,26 @@
 import tkinter as tk
 from PIL import Image, ImageTk  # Import Pillow
 
+
+def kakulasi(text: str):
+    # menambahkan "*" jika char == "(", "*" di tambahkan pada index sebelum index "("
+    new_text = ""
+    for i in range(len(text)):
+        if text[i] == "(":
+            new_text += "*"
+        new_text += text[i]
+
+    try:
+        result = eval(new_text)
+    except ZeroDivisionError:
+        result = 0
+    
+    except OverflowError:
+        result = "Out of range"
+    
+    return str(result)
+    
+
 def on_button_click(event, widget):
     char_pressed = event.char
     
@@ -8,36 +28,38 @@ def on_button_click(event, widget):
     new_text = current_text[:]
     
     number = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",]
-    symbol = ["+", "-", "*","%", "!", "/"]
+    symbol = ["+", "-", "*","%", "!", "/", "."]
     bracket = ["(", ")"]
     
-    # hapus index terakhir
+    cursor_pos = widget.index(tk.INSERT)
+    
+    # hapus char sesuai posisi cursor
     if event.keysym == "BackSpace":
         if len(current_text) > 0:
             new_text = current_text[:-1]
             widget.delete(0, tk.END)
             widget.insert(0, new_text)
         return "break"
-    
-    
-    if not char_pressed or ord(char_pressed) < 32:
+
+    if event.keysym == "Return" or char_pressed == "=" and len(new_text) > 0:
+        new_text = kakulasi(new_text)
+        
+    if not char_pressed or ord(char_pressed) < 32 and event.keysym != "Return":
         return "break"
     
     if char_pressed in number:
-        new_text += char_pressed
-        #TODO Perbaiki bagian ini;
-        #jika input "2/(+2)" format seharusmya = "2/(2)"
+        new_text = new_text[:cursor_pos] + char_pressed + new_text[cursor_pos:]
+        cursor_pos += 1
+        
     elif char_pressed in symbol + bracket:
-        if new_text[-1] in bracket and char_pressed in symbol:
-            pass
-        if len(new_text) > 0 and new_text[-1] in symbol and char_pressed not in bracket:
-            new_text = new_text[:-1]
-        new_text += char_pressed
-
+        if len(new_text) > 0 and new_text[cursor_pos-1] in symbol and char_pressed not in bracket:
+            new_text = new_text[:cursor_pos-1] + new_text[cursor_pos:]
+        new_text = new_text[:cursor_pos] + char_pressed + new_text[cursor_pos:]
+        cursor_pos += 1
+     
     widget.delete(0, tk.END)
     widget.insert(0, new_text)
-    
-    widget.icursor(tk.END)
+    widget.icursor(cursor_pos)
     return "break"
         
 window = tk.Tk()
