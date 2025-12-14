@@ -8,7 +8,7 @@ def kakulasi(text: str): # kalkulasi dan FORMAT input
     for i in range(len(text)):    
         if text[i] == "(":
             if i > 0:
-                if text[i].isdigit():
+                if text[i-1].isdigit():
                     new_text += "*"
         new_text += text[i]
     try:
