@@ -5,7 +5,7 @@ from AST_parse import safe_eval
 def kakulasi(text: str): # kalkulasi dan FORMAT input
     # menambahkan "*" jika char == "(", "*" di tambahkan pada index sebelum index "("
     new_text = ""
-    for i in range(len(text)):    
+    for i in range(len(text)):
         if text[i] == "(":
             if i > 0:
                 if text[i-1].isdigit():
@@ -13,6 +13,8 @@ def kakulasi(text: str): # kalkulasi dan FORMAT input
         new_text += text[i]
     try:
         result = safe_eval(new_text)
+        result = str(result)
+        result = result[:20]
     except ZeroDivisionError:
         result = 0
     except OverflowError:
@@ -44,6 +46,11 @@ def button_press(event, widget): # FILTER input
         
         return new_text, cursor_pos        
     
+    # evaluasi hasil dari operasi
+    if event.keysym == "Return" or char_pressed == "=" and len(new_text) > 0:
+        new_text = kakulasi(new_text)
+        cursor_pos = len(str(new_text))
+    
     if event.keysym == "Left" and cursor_pos > 0:
         cursor_pos -= 1
         widget.icursor(cursor_pos)
@@ -52,28 +59,34 @@ def button_press(event, widget): # FILTER input
         cursor_pos += 1
         widget.icursor(cursor_pos)
         
-    
     # hapus char sesuai posisi cursor
     if event.keysym == "BackSpace":
-        if len(current_text) > 0:
+        if cursor_pos > 0:
             new_text = new_text[:cursor_pos-1] + new_text[cursor_pos:]
             cursor_pos -= 1
 
             widget.delete(0, tk.END)
             widget.insert(0, new_text)
-            widget.icursor(cursor_pos)            
+            widget.icursor(cursor_pos)       
         return "break"
-
-    if event.keysym == "Return" or char_pressed == "=" and len(new_text) > 0:
-        new_text = kakulasi(new_text)
-        
+    if event.keysym == "Delete":
+        widget.delete(0, tk.END)
+        widget.icursor(cursor_pos)       
+        return "break"        
+    
+    # memberi batas panjang operasi
+    if len(new_text) >= 21:
+        return "break"
+    
+    # raturn "break" jika nilai ord event.keysym < 32 
     if not char_pressed or ord(char_pressed) < 32 and event.keysym != "Return":
         return "break"
     
+    # Aturan custom buat inputan operasi
     if char_pressed in number + bracket:
         new_text, cursor_pos = adding_char(new_text, cursor_pos, char_pressed)
     
-    elif char_pressed in symbol: #perbaiki bagian ini
+    elif char_pressed in symbol:
         if len(new_text) > 0:
             if char_pressed == "-":
                 if new_text[cursor_pos - 1] != "-":
@@ -92,23 +105,45 @@ def button_press(event, widget): # FILTER input
     widget.insert(0, new_text)
     widget.icursor(cursor_pos)
     return "break"
-        
-window = tk.Tk()
-window.config(background="grey")
-window.title("Calculator")
-window.geometry("600x400") 
 
-original_image = Image.open("icon.png")
-tk_image = ImageTk.PhotoImage(original_image)
-window.iconphoto(True, tk_image)
+def main_entry(window):
+    # text display hasil
+    my_label = tk.Entry(window,
+                        justify="right",
+                        relief="flat",
+                        font=("Arial", 36),
+                        bg="#424242",
+                        fg="#e7e5e5"
+                        )
+    my_label.focus_set()
+    my_label.bind("<Key>", lambda e: button_press(e, my_label))
+    my_label.grid(row=0, column=0, sticky="new", padx=10, pady=10)
 
-# text display hasil
-my_label = tk.Entry(window, 
-                    font=("Arial", 48),
-                    bg="#2a79b5"
-                    )
-my_label.focus_set()
-my_label.grid(row=0, column=0) 
- 
-my_label.bind("<Key>", lambda e: button_press(e, my_label))
-window.mainloop()
+def buttons(window):
+    used_font = ("Arial", 36)
+    bt_0 = tk.Button(window,
+                      font=used_font,
+                      fg="black")
+    bt_0.grid(row=1, column=0, sticky="new", padx=10, pady=10)
+def main():
+    # inisialisasi 
+    window = tk.Tk()
+    window.config(background="#424242")
+    window.title("Calculator")
+    window.geometry("600x400")
+    
+    window.grid_rowconfigure(0, weight=1)
+    window.grid_columnconfigure(0, weight=1)
+    
+
+    original_image = Image.open("icon.png")
+    tk_image = ImageTk.PhotoImage(original_image)
+    window.iconphoto(True, tk_image)
+    
+    main_entry(window)
+    buttons(window)
+    
+    window.mainloop()
+    
+if __name__ == "__main__":
+    main()
