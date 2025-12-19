@@ -48,5 +48,5 @@ def safe_eval(operasi):
         
         
 if __name__ == "__main__":
-    k = safe_eval("20+(-20*20)")
+    k = safe_eval("20+(-20**20)")
     print(k)
