@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from PIL import Image, ImageTk  # Import Pillow
 from AST_parse import safe_eval
 
@@ -9,15 +10,19 @@ def kakulasi(text: str): # kalkulasi dan FORMAT input
     # check charr pada index terrakhir, jika char digit atau "(", ")". block kode akan berjalan
     if text[-1].isdigit() or text[-1] in "()":
         for i in range(len(text)):
-            
             if text[i] == "(" and i > 0:
                 if text[i-1].isdigit():
                     new_text += "*"
+            
+            elif text[i-1] == ")" and text[i] not in "+-*%^/.":
+                new_text += "*"
+                new_text += text[i]
+            
             elif text[i] == "^":
                 new_text += "**"
                 continue
-            elif text[i] == "%":
-                new_text += "/100*"
+            elif text[i] == "%": # PErbaiki bagian ini
+                new_text = "(" + new_text + "/100)*"
                 continue
             new_text += text[i]
     else:
@@ -31,6 +36,7 @@ def kakulasi(text: str): # kalkulasi dan FORMAT input
         result = 0
     except OverflowError:
         result = "Out of range"
+    
     return str(result)
     
 def validate_input(event, widget): # FILTER input
@@ -102,6 +108,9 @@ def validate_input(event, widget): # FILTER input
         if char_pressed == "." and "." in new_text:
             pass
         elif len(new_text) > 0:
+            if new_text[-1] == "%":
+                new_text, cursor_pos = adding_char(new_text, cursor_pos, char_pressed)        
+                
             if char_pressed == "-":
                 if new_text[cursor_pos - 1] != "-":
                     new_text, cursor_pos = adding_char(new_text, cursor_pos, char_pressed)
@@ -112,7 +121,7 @@ def validate_input(event, widget): # FILTER input
             elif new_text[cursor_pos - 1] in symbol:
                 new_text, cursor_pos = adding_char(new_text, cursor_pos, char_pressed, True)
                 
-            elif new_text[cursor_pos - 1] not in bracket:
+            else:
                 new_text, cursor_pos = adding_char(new_text, cursor_pos, char_pressed)        
     
     widget.delete(0, tk.END)  
@@ -122,7 +131,7 @@ def validate_input(event, widget): # FILTER input
 
 def entry_main(window):
     entry_string = tk.StringVar()
-    entry_main = tk.Entry(window,
+    current_entry_main = tk.Entry(window,
                         textvariable=entry_string,
                         justify="right",
                         relief="flat",
@@ -130,30 +139,30 @@ def entry_main(window):
                         bg="#222222",
                         fg="#e7e5e5"
                         )
-    entry_main.focus_set()
-    entry_main.bind("<Key>", lambda e: validate_input(e, entry_main))
-    entry_main.grid(row=0, column=0, sticky="new", padx=10, pady=10)
+    current_entry_main.focus_set()
+    current_entry_main.bind("<Key>", lambda e: validate_input(e, current_entry_main))
+    current_entry_main.grid(row=0, column=0, sticky="new", padx=10, pady=10)
     
-    return entry_main
+    return current_entry_main
 
-def buttons(window):
+def buttons(window, entry, style):
     frame = tk.Frame(window,
                     bg="#222222",
                      )
-    used_font = ("Arial", 36)
+    style.map("Custom.TButton", 
+                    foreground=[('pressed', 'red'), ('active', 'blue')],
+                    background=[('pressed',"!disabled","black"), ('active', '"white')])
     
-    def simulate_key(window, key):
-        window.event_generate(key)
+    def simulate_key(entry, key):
+        entry.focus()
+        entry.event_generate(key)
         
     # row 1
     # tombol open bracket ("(")
-    bt_open_braket = tk.Button(frame,
-                    text="(",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "(")        
+    bt_open_braket = ttk.Button(frame,
+                                text="(",
+                                style="Custom.TButton",
+                                command=lambda: simulate_key(entry, "(")        
     )        
     bt_open_braket.grid(
               row=1, 
@@ -163,13 +172,10 @@ def buttons(window):
               pady=3)
     
     # tombol close bracket (")")
-    bt_close_bracket = tk.Button(frame,
+    bt_close_bracket = ttk.Button(frame,
                     text=")",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, ")")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, ")")        
     )        
     bt_close_bracket.grid(row=1, 
               column=1, 
@@ -178,13 +184,10 @@ def buttons(window):
               pady=3)
 
     # tombol modulo (%)
-    bt_modulo = tk.Button(frame,
+    bt_modulo = ttk.Button(frame,
                     text="%",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "%")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "%")        
     )        
     bt_modulo.grid(row=1, 
               column=2, 
@@ -193,13 +196,10 @@ def buttons(window):
               pady=3)
     
     # tombol bagi (/)
-    bt_bagi = tk.Button(frame,
+    bt_bagi = ttk.Button(frame,
                     text="/",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "/")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "/")        
     )        
     bt_bagi.grid(row=1, 
               column=3, 
@@ -209,13 +209,10 @@ def buttons(window):
         
     # row 2
     # tombol 7
-    bt_7 = tk.Button(frame,
+    bt_7 = ttk.Button(frame,
                     text="7",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "7")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "7")        
     )        
     bt_7.grid(row=2, 
               column=0, 
@@ -224,13 +221,10 @@ def buttons(window):
               pady=3)
     
     # tombol 8
-    bt_8 = tk.Button(frame,
+    bt_8 = ttk.Button(frame,
                     text="8",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "8")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "8")        
     )        
     bt_8.grid(row=2, 
               column=1, 
@@ -239,13 +233,10 @@ def buttons(window):
               pady=3)
 
     # tombol 9
-    bt_9 = tk.Button(frame,
+    bt_9 = ttk.Button(frame,
                     text="9",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "9")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "9")        
     )        
     bt_9.grid(row=2, 
               column=2, 
@@ -254,13 +245,10 @@ def buttons(window):
               pady=3)
     
     # tombol kali (x)
-    bt_kali = tk.Button(frame,
+    bt_kali = ttk.Button(frame,
                     text="*",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "*")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "*")        
     )        
     bt_kali.grid(row=2, 
               column=3, 
@@ -270,13 +258,10 @@ def buttons(window):
     
     # row 3
     # tombol 4
-    bt_4 = tk.Button(frame,
+    bt_4 = ttk.Button(frame,
                     text="4",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "4")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "4")        
     )        
     bt_4.grid(row=3, 
               column=0, 
@@ -285,13 +270,10 @@ def buttons(window):
               pady=3)
     
     # tombol 5
-    bt_5 = tk.Button(frame,
+    bt_5 = ttk.Button(frame,
                     text="5",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "5")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "5")        
     )        
     bt_5.grid(row=3, 
               column=1, 
@@ -300,13 +282,10 @@ def buttons(window):
               pady=3)
 
     # tombol 6
-    bt_6 = tk.Button(frame,
+    bt_6 = ttk.Button(frame,
                     text="6",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "6")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "6")        
     )        
     bt_6.grid(row=3, 
               column=2, 
@@ -315,13 +294,10 @@ def buttons(window):
               pady=3)
     
     # tombol plus (-)
-    bt_minus = tk.Button(frame,
+    bt_minus = ttk.Button(frame,
                     text="-",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "-")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "-")        
     )        
     bt_minus.grid(row=3, 
               column=3, 
@@ -331,13 +307,10 @@ def buttons(window):
     
     # row 4
     # tombol 1
-    bt_1 = tk.Button(frame,
+    bt_1 = ttk.Button(frame,
                     text="1",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "1")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "1")        
     )        
     bt_1.grid(row=4, 
               column=0, 
@@ -346,13 +319,10 @@ def buttons(window):
               pady=3)
     
     # tombol 2
-    bt_2 = tk.Button(frame,
+    bt_2 = ttk.Button(frame,
                     text="2",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "2")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "2")        
     )        
     bt_2.grid(row=4, 
               column=1, 
@@ -361,13 +331,10 @@ def buttons(window):
               pady=3)
 
     # tombol 3
-    bt_3 = tk.Button(frame,
+    bt_3 = ttk.Button(frame,
                     text="3",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "3")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "3")        
     )        
     bt_3.grid(row=4, 
               column=2, 
@@ -376,13 +343,10 @@ def buttons(window):
               pady=3)
     
     # tombol plus (+)
-    bt_plus = tk.Button(frame,
+    bt_plus = ttk.Button(frame,
                     text="+",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "+")        
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "+")        
     )        
     bt_plus.grid(row=4, 
               column=3, 
@@ -392,13 +356,10 @@ def buttons(window):
     
     # row 5
     # tombol 0
-    bt_0 = tk.Button(frame,
+    bt_0 = ttk.Button(frame,
                     text="0",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "0")
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "0")
                     )
     bt_0.grid(row=5, 
               column=0, 
@@ -407,13 +368,10 @@ def buttons(window):
               pady=3)
     
     # tombol dot (.)
-    bt_dot = tk.Button(frame,
+    bt_dot = ttk.Button(frame,
                     text=".",
-                    font=used_font,
-                    relief="flat",
-                    fg="#e7e5e5",
-                    bg="#4e4f4f",
-                    command=lambda: simulate_key(window, "."))
+                    style="Custom.TButton",
+                    command=lambda: simulate_key(entry, "."))
     bt_dot.grid(row=5, 
               column=1, 
               sticky="s", 
@@ -421,13 +379,10 @@ def buttons(window):
               pady=3)
     
     # tombol backspace
-    bt_backspace = tk.Button(frame,
+    bt_backspace = ttk.Button(frame,
                 text="<",
-                font=used_font,
-                relief="flat",
-                fg="#e7e5e5",
-                bg="#4e4f4f",
-                command=lambda: simulate_key(window, "<BackSpace>"))
+                style="Custom.TButton",
+                command=lambda: simulate_key(entry, "<BackSpace>"))
     bt_backspace.grid(row=5, 
               column=2, 
               sticky="e", 
@@ -435,13 +390,10 @@ def buttons(window):
               pady=3)
     
     # tombol equal (evaluasi hasil)
-    bt_equal = tk.Button(frame,
+    bt_equal = ttk.Button(frame,
                 text="=",
-                font=used_font,
-                relief="flat",
-                fg="#e7e5e5",
-                bg="#4e4f4f",
-                command=lambda: simulate_key(window, "="))
+                style="Custom.TButton",
+                command=lambda: simulate_key(entry, "="))
     bt_equal.grid(row=5, 
               column=3, 
               sticky="e", 
@@ -458,6 +410,7 @@ def buttons(window):
 def main():
     # inisialisasi 
     window = tk.Tk()
+    style = ttk.Style()
     window.config(background="#222222")
     window.title("Calculator")
     window.geometry("600x600")
@@ -465,13 +418,12 @@ def main():
     window.grid_rowconfigure(0, weight=1)
     window.grid_columnconfigure(0, weight=1)
     
-
     original_image = Image.open("icon.png")
     tk_image = ImageTk.PhotoImage(original_image)
     window.iconphoto(True, tk_image)
      
-    entry_main(window)
-    buttons(window)
+    entry = entry_main(window)
+    buttons(window, entry, style)
     
     window.mainloop()
     
