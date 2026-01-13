@@ -129,16 +129,37 @@ def validate_input(event, widget): # FILTER input
     widget.icursor(cursor_pos)
     return "break"
 
-def entry_main(window):
+def entry_main(window, style):
+    style.theme_use("clam")
+    
+    style.configure("Custom.TEntry",
+                justify="right",
+                insertcolor="#e7e5e5",
+                insertwidth=2,
+                foreground="#e7e5e5",
+                fieldbackground="#222222",
+                background="#222222",
+                lightcolor="#222222",
+                bordercolor="#222222",     
+                relief="flat"
+                ) 
+    
+    style.map("Custom.TEntry",
+                lightcolor=[("focus", "#222222"),
+                    ("pressed", "#222222"),
+                    ("active", "#222222")],
+                bordercolor=[("focus", "#222222"),
+                    ("pressed", "#222222"),
+                    ("active", "#222222")]
+              )
+
+    
     entry_string = tk.StringVar()
-    current_entry_main = tk.Entry(window,
-                        textvariable=entry_string,
-                        justify="right",
-                        relief="flat",
-                        font=("Arial", 36),
-                        bg="#222222",
-                        fg="#e7e5e5"
-                        )
+    current_entry_main = ttk.Entry(window,
+                                   style="Custom.TEntry",
+                                    font=("Calibri", 36),
+                                   textvariable=entry_string)
+    
     current_entry_main.focus_set()
     current_entry_main.bind("<Key>", lambda e: validate_input(e, current_entry_main))
     current_entry_main.grid(row=0, column=0, sticky="new", padx=10, pady=10)
@@ -149,9 +170,17 @@ def buttons(window, entry, style):
     frame = tk.Frame(window,
                     bg="#222222",
                      )
-    style.map("Custom.TButton", 
-                    foreground=[('pressed', 'red'), ('active', 'blue')],
-                    background=[('pressed',"!disabled","black"), ('active', '"white')])
+    style.configure("Custom.TButton",
+                    font="Calibri",
+                    relief="flat",
+                    borderwidth=0,
+                    highlightcolor="#4e4f4f",
+                    focuscolor="#4e4f4f")
+    style.map("Custom.TButton",
+                    foreground=[('disabled', '#e7e5e5'), ('active', '#e7e5e5')],
+                    background=[('pressed', "#4e4f4f"), ('active', "#4e4f4f",)],)
+
+    padx_value, pady_value = 5, 3
     
     def simulate_key(entry, key):
         entry.focus()
@@ -168,8 +197,8 @@ def buttons(window, entry, style):
               row=1, 
               column=0, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol close bracket (")")
     bt_close_bracket = ttk.Button(frame,
@@ -180,8 +209,8 @@ def buttons(window, entry, style):
     bt_close_bracket.grid(row=1, 
               column=1, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
 
     # tombol modulo (%)
     bt_modulo = ttk.Button(frame,
@@ -192,8 +221,8 @@ def buttons(window, entry, style):
     bt_modulo.grid(row=1, 
               column=2, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol bagi (/)
     bt_bagi = ttk.Button(frame,
@@ -204,8 +233,8 @@ def buttons(window, entry, style):
     bt_bagi.grid(row=1, 
               column=3, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
         
     # row 2
     # tombol 7
@@ -217,8 +246,8 @@ def buttons(window, entry, style):
     bt_7.grid(row=2, 
               column=0, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol 8
     bt_8 = ttk.Button(frame,
@@ -229,8 +258,8 @@ def buttons(window, entry, style):
     bt_8.grid(row=2, 
               column=1, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
 
     # tombol 9
     bt_9 = ttk.Button(frame,
@@ -241,8 +270,8 @@ def buttons(window, entry, style):
     bt_9.grid(row=2, 
               column=2, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol kali (x)
     bt_kali = ttk.Button(frame,
@@ -253,8 +282,8 @@ def buttons(window, entry, style):
     bt_kali.grid(row=2, 
               column=3, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # row 3
     # tombol 4
@@ -266,8 +295,8 @@ def buttons(window, entry, style):
     bt_4.grid(row=3, 
               column=0, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol 5
     bt_5 = ttk.Button(frame,
@@ -278,8 +307,8 @@ def buttons(window, entry, style):
     bt_5.grid(row=3, 
               column=1, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
 
     # tombol 6
     bt_6 = ttk.Button(frame,
@@ -290,8 +319,8 @@ def buttons(window, entry, style):
     bt_6.grid(row=3, 
               column=2, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol plus (-)
     bt_minus = ttk.Button(frame,
@@ -302,8 +331,8 @@ def buttons(window, entry, style):
     bt_minus.grid(row=3, 
               column=3, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # row 4
     # tombol 1
@@ -315,8 +344,8 @@ def buttons(window, entry, style):
     bt_1.grid(row=4, 
               column=0, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol 2
     bt_2 = ttk.Button(frame,
@@ -327,8 +356,8 @@ def buttons(window, entry, style):
     bt_2.grid(row=4, 
               column=1, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
 
     # tombol 3
     bt_3 = ttk.Button(frame,
@@ -339,8 +368,8 @@ def buttons(window, entry, style):
     bt_3.grid(row=4, 
               column=2, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol plus (+)
     bt_plus = ttk.Button(frame,
@@ -351,8 +380,8 @@ def buttons(window, entry, style):
     bt_plus.grid(row=4, 
               column=3, 
               sticky="w",
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # row 5
     # tombol 0
@@ -364,8 +393,8 @@ def buttons(window, entry, style):
     bt_0.grid(row=5, 
               column=0, 
               sticky="w", 
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol dot (.)
     bt_dot = ttk.Button(frame,
@@ -375,8 +404,8 @@ def buttons(window, entry, style):
     bt_dot.grid(row=5, 
               column=1, 
               sticky="s", 
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol backspace
     bt_backspace = ttk.Button(frame,
@@ -386,8 +415,8 @@ def buttons(window, entry, style):
     bt_backspace.grid(row=5, 
               column=2, 
               sticky="e", 
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # tombol equal (evaluasi hasil)
     bt_equal = ttk.Button(frame,
@@ -397,14 +426,14 @@ def buttons(window, entry, style):
     bt_equal.grid(row=5, 
               column=3, 
               sticky="e", 
-              padx=10, 
-              pady=3)
+              padx=padx_value, 
+              pady=pady_value)
     
     # set frame
     frame.grid(row=1,
                column=0,
                sticky="s",
-               padx=10,
+               padx=padx_value,
                pady=10)
     
 def main():
@@ -413,7 +442,7 @@ def main():
     style = ttk.Style()
     window.config(background="#222222")
     window.title("Calculator")
-    window.geometry("600x600")
+    window.geometry("550x512")
     
     window.grid_rowconfigure(0, weight=1)
     window.grid_columnconfigure(0, weight=1)
@@ -422,7 +451,7 @@ def main():
     tk_image = ImageTk.PhotoImage(original_image)
     window.iconphoto(True, tk_image)
      
-    entry = entry_main(window)
+    entry = entry_main(window, style)
     buttons(window, entry, style)
     
     window.mainloop()
